@@ -20,11 +20,11 @@ std::ostream& MockLogStreamImpl::stream() {
   return std::cout;
 }
 
-MockAdsClient::MockAdsClient() = default;
+AdsClientMock::AdsClientMock() = default;
 
-MockAdsClient::~MockAdsClient() = default;
+AdsClientMock::~AdsClientMock() = default;
 
-std::unique_ptr<LogStream> MockAdsClient::Log(
+std::unique_ptr<LogStream> AdsClientMock::Log(
     const char* file,
     int line,
     const LogLevel log_level) const {
