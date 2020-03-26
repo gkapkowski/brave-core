@@ -12,6 +12,7 @@
 
 #include "base/bind.h"
 #include "base/strings/string_number_conversions.h"
+#include "brave/browser/brave_rewards/checkout_dialog.h"
 #include "brave/browser/brave_rewards/tip_dialog.h"
 #include "brave/browser/extensions/api/brave_action_api.h"
 #include "brave/common/extensions/api/brave_rewards.h"
@@ -1151,6 +1152,53 @@ BraveRewardsGetAnonWalletStatusFunction::Run() {
 void BraveRewardsGetAnonWalletStatusFunction::OnGetAnonWalletStatus(
     const uint32_t result) {
   Respond(OneArgument(std::make_unique<base::Value>(static_cast<int>(result))));
+}
+
+// TODO(zeparsing): Development only
+BraveRewardsShowCheckoutDialogFunction::
+~BraveRewardsShowCheckoutDialogFunction() = default;
+
+ExtensionFunction::ResponseAction
+BraveRewardsShowCheckoutDialogFunction::Run() {
+  auto params = brave_rewards::ShowCheckoutDialog::Params::Create(*args_);
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  Profile* profile = Profile::FromBrowserContext(browser_context());
+  content::WebContents* contents = nullptr;
+
+  if (!ExtensionTabUtil::GetTabById(
+        params->tab_id,
+        profile,
+        false,
+        nullptr,
+        nullptr,
+        &contents,
+        nullptr)) {
+    return RespondNow(Error(tabs_constants::kTabNotFoundError,
+                            base::NumberToString(params->tab_id)));
+  }
+
+  using ::brave_rewards::CheckoutDialogParams;
+  using ::brave_rewards::ShowCheckoutDialog;
+
+  auto controller = ShowCheckoutDialog(contents, {
+      "Some product description",
+      15.0,
+      {
+        {"fake-sku", 1}
+      }
+  });
+
+  controller->SetOnDialogClosedCallback(base::BindOnce(
+      &BraveRewardsShowCheckoutDialogFunction::OnDialogClosed,
+      this));
+
+  return RespondLater();
+}
+
+void BraveRewardsShowCheckoutDialogFunction::OnDialogClosed(
+    bool payment_fulfilled) {
+  Respond(OneArgument(std::make_unique<base::Value>(payment_fulfilled)));
 }
 
 }  // namespace api
