@@ -579,7 +579,7 @@ void Unblinded::SetTimer(
 }
 
 void Unblinded::OnTimer(uint32_t timer_id) {
-  for (std::pair<std::string, uint32_t> const& value : retry_timers_) {
+  for (auto& value : retry_timers_) {
     if (value.second == timer_id) {
       std::string contribution_id = value.first;
       CheckStep(contribution_id);

@@ -386,7 +386,7 @@ void Contribution::OnTimer(uint32_t timer_id) {
   }
 
   // DEPRECATED
-  for (std::pair<std::string, uint32_t> const& value : retry_timers_) {
+  for (auto& value : retry_timers_) {
     if (value.second == timer_id) {
       std::string viewing_id = value.first;
       DoRetry(viewing_id);
