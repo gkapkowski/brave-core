@@ -9,16 +9,20 @@
 #include <vector>
 
 #include "base/json/json_writer.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "brave/common/webui_url_constants.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/webui/constrained_web_dialog_ui.h"
 #include "components/web_modal/web_contents_modal_dialog_host.h"
+#include "components/payments/content/payment_request.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/web_dialogs/web_dialog_delegate.h"
 
 using content::WebContents;
 using content::WebUIMessageHandler;
+using payments::mojom::PaymentItemPtr;
+using payments::PaymentRequest;
 
 namespace {
 
@@ -88,11 +92,27 @@ class CheckoutDialogDelegate : public ui::WebDialogDelegate {
 
 namespace brave_rewards {
 
-void ShowCheckoutDialog(WebContents* initiator) {
+void ShowCheckoutDialog(WebContents* initiator, PaymentRequest* request) {
+  double total;
+  std::string description = "";
+  
+  auto* spec = request->spec();
+  if (!spec) {
+    return;  
+  }
+
+  //TODO (jumde): handle errors
+  base::StringToDouble(spec->details().total->amount->value, &total);
+  for(auto it = spec->details().display_items->begin(); it != spec->details().display_items->end(); ++it) {
+    description = description + it->get()->label + ", ";
+  }
+
+  base::TrimString(description, " ,", &description);
+
   // TODO(zenparsing): Take params from caller
   base::Value order_info(base::Value::Type::DICTIONARY);
-  order_info.SetStringKey("description", "Some order description");
-  order_info.SetDoubleKey("total", 15.0);
+  order_info.SetStringKey("description", description);
+  order_info.SetDoubleKey("total", total);
 
   base::Value params(base::Value::Type::DICTIONARY);
   params.SetKey("orderInfo", std::move(order_info));

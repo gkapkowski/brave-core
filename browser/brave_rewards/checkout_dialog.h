@@ -17,9 +17,13 @@ namespace content {
 class WebContents;
 }
 
+namespace payments {
+class PaymentRequest;
+}
+
 namespace brave_rewards {
 
-void ShowCheckoutDialog(content::WebContents* initiator);
+void ShowCheckoutDialog(content::WebContents* initiator, payments::PaymentRequest* request);
 
 }
 
