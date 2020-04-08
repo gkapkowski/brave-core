@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <utility>
+#include <vector>
 
 #include "bat/ledger/global_constants.h"
 #include "bat/ledger/internal/common/bind_util.h"
@@ -106,9 +107,14 @@ void ContributionSKU::AutoContribution(
     const std::string& contribution_id,
     ledger::ExternalWalletPtr wallet,
     ledger::ResultCallback callback) {
+  if (!wallet) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Wallet is null";
+    callback(ledger::Result::LEDGER_ERROR);
+    return;
+  }
+
   ledger::SKUOrderItem item;
   item.sku = GetACSKU();
-  item.price = braveledger_ledger::_vote_price;
 
   Start(
       contribution_id,
@@ -121,9 +127,14 @@ void ContributionSKU::AnonUserFunds(
     const std::string& contribution_id,
     ledger::ExternalWalletPtr wallet,
     ledger::ResultCallback callback) {
+  if (!wallet) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Wallet is null";
+    callback(ledger::Result::LEDGER_ERROR);
+    return;
+  }
+
   ledger::SKUOrderItem item;
   item.sku = GetUserFundsSKU();
-  item.price = braveledger_ledger::_vote_price;
 
   Start(
       contribution_id,
@@ -139,6 +150,7 @@ void ContributionSKU::Start(
     ledger::ResultCallback callback) {
   if (!wallet) {
     BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Wallet is null";
+    callback(ledger::Result::LEDGER_ERROR);
     return;
   }
 
@@ -181,6 +193,7 @@ void ContributionSKU::GetContributionInfo(
   ledger::SKUOrderItem new_item = item;
   new_item.quantity = GetVotesFromAmount(contribution->amount);
   new_item.type = ledger::SKUOrderItemType::SINGLE_USE;
+  new_item.price = braveledger_ledger::_vote_price;
 
   std::vector<ledger::SKUOrderItem> items;
   items.push_back(new_item);
@@ -224,7 +237,7 @@ void ContributionSKU::OnGetOrder(
   auto save_callback = std::bind(&ContributionSKU::TransactionStepSaved,
       this,
       _1,
-      braveledger_bind_util::FromSKUOrderToString(order->Clone()),
+      braveledger_bind_util::FromSKUOrderToString(std::move(order)),
       callback);
 
   ledger_->UpdateContributionInfoStep(
@@ -264,6 +277,7 @@ void ContributionSKU::Completed(
     const ledger::RewardsType type,
     ledger::ResultCallback callback) {
   if (result != ledger::Result::LEDGER_OK) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Order not completed";
     callback(result);
     return;
   }
@@ -284,6 +298,12 @@ void ContributionSKU::CredsStepSaved(
     const ledger::Result result,
     const std::string& contribution_id,
     ledger::ResultCallback callback) {
+  if (result != ledger::Result::LEDGER_OK) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Creds step not saved";
+    callback(result);
+    return;
+  }
+
   contribution_->StartUnblinded(
       {ledger::CredsBatchType::SKU},
       contribution_id,
@@ -332,7 +352,6 @@ void ContributionSKU::GetUnblindedTokens(
   }
 
   braveledger_credentials::CredentialsRedeem redeem;
-  redeem.publisher_key = "";
   redeem.type = ledger::RewardsType::PAYMENT;
   redeem.processor = ledger::ContributionProcessor::BRAVE_TOKENS;
   redeem.token_list = token_list;
@@ -371,6 +390,12 @@ void ContributionSKU::GerOrderMerchant(
 void ContributionSKU::OnRedeemTokens(
     const ledger::Result result,
     ledger::TransactionCallback callback) {
+  if (result != ledger::Result::LEDGER_OK) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Problem redeeming tokens";
+    callback(result, "");
+    return;
+  }
+
   callback(result, "");
 }
 
@@ -451,6 +476,7 @@ void ContributionSKU::RetryStartStep(
     ledger::ResultCallback callback) {
   if (!contribution) {
     BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Contribution is null";
+    callback(ledger::Result::LEDGER_ERROR);
     return;
   }
 
@@ -460,6 +486,7 @@ void ContributionSKU::RetryStartStep(
     if (order) {
       order_id = order->order_id;
     }
+
     auto get_callback = std::bind(
         &ContributionSKU::RetryStartStepExternalWallet,
         this,
@@ -498,6 +525,7 @@ void ContributionSKU::RetryStartStepExternalWallet(
     ledger::ResultCallback callback) {
   if (!wallet || result != ledger::Result::LEDGER_OK) {
     BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "External wallet is missing";
+    callback(ledger::Result::LEDGER_ERROR);
     return;
   }
 
@@ -522,6 +550,7 @@ void ContributionSKU::RetryExternalTransactionStep(
     ledger::ResultCallback callback) {
   if (!contribution || !order) {
     BLOG(ledger_, ledger::LogLevel::LOG_ERROR) << "Contribution/order is null";
+    callback(ledger::Result::LEDGER_ERROR);
     return;
   }
 
