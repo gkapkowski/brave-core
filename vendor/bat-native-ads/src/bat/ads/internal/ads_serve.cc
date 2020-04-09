@@ -9,6 +9,7 @@
 #include "bat/ads/internal/static_values.h"
 #include "bat/ads/internal/bundle.h"
 #include "bat/ads/internal/logging.h"
+#include "bat/ads/ads_client.h"
 
 #include "base/time/time.h"
 
@@ -19,9 +20,11 @@ using std::placeholders::_3;
 namespace ads {
 
 AdsServe::AdsServe(
+    AdsImpl* ads,
     AdsClient* ads_client,
     Bundle* bundle)
     : catalog_last_updated_(0),
+      ads_(ads),
       ads_client_(ads_client),
       bundle_(bundle) {
   BuildUrl();
@@ -134,15 +137,18 @@ void AdsServe::OnCatalogDownloaded(
 bool AdsServe::ProcessCatalog(const std::string& json) {
   // TODO(Terry Mancey): Refactor function to use callbacks
 
-  Catalog catalog(ads_client_);
+  Catalog catalog(ads_);
 
   BLOG(INFO) << "Parsing catalog";
 
   if (!catalog.FromJson(json)) {
+    BLOG(ERROR) << "Failed to parse catalog JSON :("
+        << catalog.get_last_message() << "): " << json;
+
     return false;
   }
 
-  BLOG(INFO) << "Catalog parsed";
+  BLOG(INFO) << "Successfully parsed catalog";
 
   if (!catalog.HasChanged(bundle_->GetCatalogId())) {
     BLOG(WARNING) << "Catalog id " << catalog.GetId() <<
@@ -192,7 +198,7 @@ void AdsServe::RetryDownloadingCatalog() {
 void AdsServe::ResetCatalog() {
   BLOG(INFO) << "Resetting catalog to default state";
 
-  Catalog catalog(ads_client_);
+  Catalog catalog(ads_);
   auto callback = std::bind(&AdsServe::OnCatalogReset, this, _1);
   catalog.Reset(callback);
 }
