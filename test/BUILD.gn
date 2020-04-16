@@ -485,7 +485,7 @@ test("brave_unit_tests") {
     ]
 
     deps += [
-      "//brave/components/speedreader:speedreader"
+      "//brave/components/speedreader/rust/ffi:speedreader_ffi"
     ]
   }
 }
