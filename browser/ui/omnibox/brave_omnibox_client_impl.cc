@@ -11,6 +11,7 @@
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_edit_controller.h"
 #include "components/prefs/pref_service.h"
+#include "components/omnibox/browser/autocomplete_match.h"
 
 BraveOmniboxClientImpl::BraveOmniboxClientImpl(
       OmniboxEditController* controller,
@@ -28,4 +29,9 @@ BraveOmniboxClientImpl::GetSchemeClassifier() const {
 
 bool BraveOmniboxClientImpl::IsAutocompleteEnabled() const {
   return profile_->GetPrefs()->GetBoolean(kAutocompleteEnabled);
+}
+
+void BraveOmniboxClientImpl::OnInputAccepted(const AutocompleteMatch& match) {
+  LOG(ERROR) << __func__;
+  LOG(ERROR) << "Type = " << match.type;
 }

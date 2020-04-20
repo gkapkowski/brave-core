@@ -20,6 +20,8 @@ class BraveOmniboxClientImpl : public ChromeOmniboxClient {
   const AutocompleteSchemeClassifier& GetSchemeClassifier() const override;
   bool IsAutocompleteEnabled() const override;
 
+  void OnInputAccepted(const AutocompleteMatch& match) override;
+
  private:
   Profile* profile_;
   BraveAutocompleteSchemeClassifier scheme_classifier_;
