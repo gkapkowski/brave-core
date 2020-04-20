@@ -74,6 +74,11 @@ uint64_t WeeklyStorage::GetWeeklySum() const {
                          });
 }
 
+bool WeeklyStorage::IsOneWeekPassed() const {
+  // TODO: FIXME FIXME
+  return daily_values_.size() == kDaysInWeek;
+}
+
 void WeeklyStorage::Load() {
   DCHECK(daily_values_.empty());
   const base::ListValue* list =

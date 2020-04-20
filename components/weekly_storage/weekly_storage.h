@@ -32,11 +32,12 @@ class WeeklyStorage {
 
   void AddDelta(uint64_t delta);
   uint64_t GetWeeklySum() const;
+  bool IsOneWeekPassed() const;
 
  private:
   struct DailyValue {
     base::Time day;
-    uint64_t value;
+    uint64_t value = 0ull;
   };
   void Load();
   void Save();
