@@ -28,10 +28,10 @@ class SuggestedSitesProvider : public AutocompleteProvider {
 
  private:
   ~SuggestedSitesProvider() override;
-  static std::map<std::string, SuggestedSitesMatch> suggested_sites_;
 
   static const int kRelevance;
 
+  const std::map<std::string, SuggestedSitesMatch>& GetSuggestedSites();
   void AddMatch(const base::string16& match_string,
                 const SuggestedSitesMatch& match,
                 const ACMatchClassifications& styles);

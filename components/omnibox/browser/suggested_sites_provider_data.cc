@@ -7,8 +7,10 @@
 
 #include "base/strings/utf_string_conversions.h"
 
-std::map<std::string, SuggestedSitesMatch>
-SuggestedSitesProvider::suggested_sites_ = {
+
+const std::map<std::string, SuggestedSitesMatch>&
+SuggestedSitesProvider::GetSuggestedSites() {
+  static const std::map<std::string, SuggestedSitesMatch> suggested_sites = {
   {
     "binance.com", SuggestedSitesMatch(
       GURL("https://www.binance.com?ref=39346846"),
@@ -140,4 +142,7 @@ SuggestedSitesProvider::suggested_sites_ = {
                          "?offer_id=24&aff_id=3494"),
       true)
   },
-};
+  };
+
+  return suggested_sites;
+}
