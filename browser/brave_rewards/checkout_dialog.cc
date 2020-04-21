@@ -34,8 +34,9 @@ constexpr int kDialogMaxHeight = 800;
 
 class CheckoutDialogDelegate : public ui::WebDialogDelegate {
  public:
-  CheckoutDialogDelegate(base::Value params)
-      : params_(std::move(params)) {}
+  CheckoutDialogDelegate(base::Value params, PaymentRequest* request)
+      : params_(std::move(params)),
+        request_(request) {}
 
   ~CheckoutDialogDelegate() override {}
 
@@ -70,7 +71,10 @@ class CheckoutDialogDelegate : public ui::WebDialogDelegate {
     return json;
   }
 
-  void OnDialogClosed(const std::string& json_retval) override {}
+  void OnDialogClosed(const std::string& json_retval) override {
+    request_->UserCancelled();
+    return;
+  }
 
   void OnCloseContents(
       WebContents* source,
@@ -84,6 +88,7 @@ class CheckoutDialogDelegate : public ui::WebDialogDelegate {
 
  private:
   base::Value params_;
+  PaymentRequest* request_;
 
   DISALLOW_COPY_AND_ASSIGN(CheckoutDialogDelegate);
 };
@@ -119,7 +124,7 @@ void ShowCheckoutDialog(WebContents* initiator, PaymentRequest* request) {
 
   ShowConstrainedWebDialogWithAutoResize(
       initiator->GetBrowserContext(),
-      std::make_unique<CheckoutDialogDelegate>(std::move(params)),
+      std::make_unique<CheckoutDialogDelegate>(std::move(params), request),
       initiator,
       gfx::Size(kDialogMinWidth, kDialogMinHeight),
       gfx::Size(kDialogMaxWidth, kDialogMaxHeight));
