@@ -19,6 +19,7 @@
 
 #if defined(OS_WIN)
 #include "base/run_loop.h"
+#include "base/test/scoped_run_loop_timeout.h"
 #include "base/time/time.h"
 #include "base/win/registry.h"
 #endif
@@ -38,8 +39,7 @@ class TestNativeThemeObserver : public ui::NativeThemeObserver {
 #if defined(OS_WIN)
 void RunLoopRunWithTimeout(base::TimeDelta timeout) {
   base::RunLoop run_loop;
-  base::RunLoop::ScopedRunTimeoutForTest run_timeout(timeout,
-                                                     run_loop.QuitClosure());
+  base::test::ScopedRunLoopTimeout run_timeout(FROM_HERE, timeout);
   run_loop.Run();
 }
 #endif
