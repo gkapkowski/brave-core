@@ -6,7 +6,6 @@
 import("//brave/build/cargo.gni")
 import("//brave/build/rust/config.gni")
 import("//brave/test/testing.gni")
-import("//build/config/sysroot.gni")
 
 config("external_config") {
   include_dirs = [ "src" ]
@@ -52,9 +51,6 @@ cargo_build("speedreader_rust_lib") {
   manifest_path = "Cargo.toml"
   build_path = "${root_gen_dir}/speedreader/out"
   target = rustc_target
-  if (is_linux && use_sysroot) {
-    rust_flags += " -C link-args=--sysroot=$target_sysroot "
-  }
 }
 
 # Generate FFI header from Rust source
