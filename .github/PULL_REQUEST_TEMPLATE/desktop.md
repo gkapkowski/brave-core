@@ -1,3 +1,12 @@
+---
+name: Desktop PR
+about: 'Template for creating Desktop PR'
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 <!-- Add brave-browser issue bellow that this PR will resolve -->
 Resolves 
 
