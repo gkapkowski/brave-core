@@ -141,6 +141,8 @@ std::string BraveProfileManager::GetLastUsedProfileName() {
 void BraveProfileManager::DoFinalInitForServices(Profile* profile,
                                                  bool go_off_the_record) {
   ProfileManager::DoFinalInitForServices(profile, go_off_the_record);
+  if (!do_final_services_init_)
+    return;
   brave_ads::AdsServiceFactory::GetForProfile(profile);
   brave_rewards::RewardsServiceFactory::GetForProfile(profile);
 #if BUILDFLAG(BRAVE_WALLET_ENABLED)
@@ -152,6 +154,20 @@ void BraveProfileManager::DoFinalInitForServices(Profile* profile,
   DCHECK(status);
   status->UpdateGCMDriverStatus();
 #endif
+}
+
+bool BraveProfileManager::IsAllowedProfilePath(
+    const base::FilePath& path) const {
+  // Chromium only allows profiles to be created in the user_data_dir, but we
+  // want to also be able to create profile in subfolders of user_data_dir.
+  return ProfileManager::IsAllowedProfilePath(path) ||
+         user_data_dir().IsParent(path.DirName());
+}
+
+void BraveProfileManager::AddProfileToStorage(Profile* profile) {
+  if (brave::IsTorProfile(profile))
+    return;
+  ProfileManager::AddProfileToStorage(profile);
 }
 
 void BraveProfileManager::OnProfileCreated(Profile* profile,
@@ -178,7 +194,10 @@ void BraveProfileManager::OnProfileCreated(Profile* profile,
     // only.
     extensions::ExtensionService* extension_service =
         extensions::ExtensionSystem::Get(profile)->extension_service();
-    extension_service->BlockAllExtensions();
+    // In tests, BraveProfileManagerWithoutInit is used, so extension_service
+    // won't be there.
+    if (extension_service)
+      extension_service->BlockAllExtensions();
 #endif
 
     // We need to wait until OnProfileCreated to
@@ -238,4 +257,10 @@ void BraveProfileManager::Observe(int type,
       break;
     }
   }
+}
+
+BraveProfileManagerWithoutInit::BraveProfileManagerWithoutInit(
+    const base::FilePath& user_data_dir)
+    : BraveProfileManager(user_data_dir) {
+  set_do_final_services_init(false);
 }
