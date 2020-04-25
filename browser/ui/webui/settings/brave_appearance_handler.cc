@@ -9,6 +9,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "brave/browser/ntp_background_images/view_counter_service_factory.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
+#include "brave/browser/binance/binance_util.h"
 #include "brave/common/pref_names.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
 #include "brave/components/ntp_background_images/browser/view_counter_service.h"
@@ -67,6 +68,10 @@ void BraveAppearanceHandler::RegisterMessages() {
       "getIsSuperReferralActive",
       base::BindRepeating(&BraveAppearanceHandler::GetIsSuperReferralActive,
                           base::Unretained(this)));
+  web_ui()->RegisterMessageCallback(
+      "getIsBinanceSupported",
+      base::BindRepeating(&BraveAppearanceHandler::GetIsBinanceSupported,
+                          base::Unretained(this)));
 }
 
 void BraveAppearanceHandler::SetBraveThemeType(const base::ListValue* args) {
@@ -97,6 +102,15 @@ void BraveAppearanceHandler::GetIsSuperReferralActive(
   AllowJavascript();
   ResolveJavascriptCallback(args->GetList()[0],
                             base::Value(IsSuperReferralActive(profile_)));
+}
+
+void BraveAppearanceHandler::GetIsBinanceSupported(
+    const base::ListValue* args) {
+  CHECK_EQ(args->GetSize(), 1U);
+
+  AllowJavascript();
+  ResolveJavascriptCallback(args->GetList()[0],
+      base::Value(::binance::IsBinanceSupported(profile_)));
 }
 
 void BraveAppearanceHandler::OnBraveDarkModeChanged() {
