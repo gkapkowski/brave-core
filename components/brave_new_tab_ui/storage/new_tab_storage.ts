@@ -17,6 +17,7 @@ export const defaultState: NewTab.State = {
   showClock: false,
   showTopSites: false,
   showRewards: false,
+  showTogether: false,
   showBinance: false,
   brandedWallpaperOptIn: false,
   isBrandedWallpaperNotificationDismissed: true,
