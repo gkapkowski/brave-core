@@ -445,7 +445,7 @@ class BraveRewardsBrowserTest
         url,
         "/order",
         PREFIX_V1,
-        ServerTypes::kPromotion)) {
+        ServerTypes::kPayments)) {
       if (url.find("credentials") != std::string::npos) {
         if (method == 0) {
           *response = brave_test_resp::creds_tokens_;
