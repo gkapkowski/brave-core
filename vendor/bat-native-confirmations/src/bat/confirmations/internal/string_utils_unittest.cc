@@ -3,27 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "bat/confirmations/internal/string_helper.h"
+#include "bat/confirmations/internal/string_utils.h"
 
 #include <stdint.h>
 
-#include <memory>
 #include <string>
 #include <vector>
 
+#include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// npm run test -- brave_unit_tests --filter=Confirmations*
+// npm run test -- brave_unit_tests --filter=BatConfirmations*
 
 namespace confirmations {
 
-class ConfirmationsStringHelperTest : public ::testing::Test {
+class BatConfirmationsStringUtilsTest : public ::testing::Test {
  protected:
-  ConfirmationsStringHelperTest() {
+  BatConfirmationsStringUtilsTest() {
     // You can do set-up work for each test here
   }
 
-  ~ConfirmationsStringHelperTest() override {
+  ~BatConfirmationsStringUtilsTest() override {
     // You can do clean-up work that doesn't throw exceptions here
   }
 
@@ -43,7 +43,8 @@ class ConfirmationsStringHelperTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case
 };
 
-TEST_F(ConfirmationsStringHelperTest, DecodeHexString) {
+TEST_F(BatConfirmationsStringUtilsTest,
+    DecodeHexString) {
   // Arrange
   const std::string hexadecimal = "e9b1ab4f44d39eb04323411eed0b5a2ceedff0126"
       "4474f86e29c707a5661565033cea0085cfd551faa170c1dd7f6daaa903cdd3138d61e"
@@ -59,7 +60,7 @@ TEST_F(ConfirmationsStringHelperTest, DecodeHexString) {
   };
 
   // Act
-  const std::vector<uint8_t> bytes = helper::String::decode_hex(hexadecimal);
+  const std::vector<uint8_t> bytes = DecodeHexString(hexadecimal);
 
   // Assert
   unsigned int index = 0;
@@ -75,12 +76,13 @@ TEST_F(ConfirmationsStringHelperTest, DecodeHexString) {
   SUCCEED();
 }
 
-TEST_F(ConfirmationsStringHelperTest, DecodeEmptyHexString) {
+TEST_F(BatConfirmationsStringUtilsTest,
+    DecodeEmptyHexString) {
   // Arrange
   const std::string hexadecimal = "";
 
   // Act
-  const std::vector<uint8_t> bytes = helper::String::decode_hex(hexadecimal);
+  const std::vector<uint8_t> bytes = DecodeHexString(hexadecimal);
 
   // Assert
   EXPECT_TRUE(bytes.empty());

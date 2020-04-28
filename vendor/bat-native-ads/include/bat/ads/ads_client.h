@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <sstream>
-#include <ostream>
 #include <memory>
 #include <functional>
 
@@ -23,25 +21,14 @@
 #include "bat/ads/export.h"
 #include "bat/ads/ad_notification_info.h"
 #include "bat/ads/result.h"
+#include "bat/ads/log_stream.h"
 
 namespace ads {
-
-enum LogLevel {
-  LOG_ERROR = 1,
-  LOG_WARNING,
-  LOG_INFO
-};
 
 enum URLRequestMethod {
   GET = 0,
   PUT = 1,
   POST = 2
-};
-
-class ADS_EXPORT LogStream {
- public:
-  virtual ~LogStream() = default;
-  virtual std::ostream& stream() = 0;
 };
 
 using ResultCallback = std::function<void(const Result)>;

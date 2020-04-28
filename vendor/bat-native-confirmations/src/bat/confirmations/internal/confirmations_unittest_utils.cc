@@ -3,13 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "bat/confirmations/internal/unittest_utils.h"
+#include "bat/confirmations/internal/confirmations_unittest_utils.h"
+
+#include <string>
 
 #include "bat/confirmations/internal/confirmations_client_mock.h"
-#include "bat/confirmations/internal/confirmations_impl_mock.h"
 #include "bat/confirmations/internal/platform_helper_mock.h"
 
+#include "base/base_paths.h"
+#include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/path_service.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "url/gurl.h"
 
@@ -19,17 +23,11 @@ using ::testing::Return;
 
 namespace confirmations {
 
-void Initialize(
-    ConfirmationsImpl* confirmations) {
-  confirmations->Initialize(
-      [](const bool success) {
-    ASSERT_TRUE(success);
-  });
-}
-
 base::FilePath GetTestDataPath() {
-  return base::FilePath(FILE_PATH_LITERAL(
-      "brave/vendor/bat-native-confirmations/test/data"));
+  base::FilePath path;
+  base::PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  path = path.AppendASCII("brave/vendor/bat-native-confirmations/data/test");
+  return path;
 }
 
 std::string GetPathForRequest(

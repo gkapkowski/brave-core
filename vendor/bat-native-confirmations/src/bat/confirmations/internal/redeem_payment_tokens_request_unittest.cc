@@ -13,17 +13,17 @@
 #include "bat/confirmations/internal/confirmations_impl.h"
 #include "bat/confirmations/internal/redeem_payment_tokens_request.h"
 #include "bat/confirmations/internal/unblinded_tokens.h"
-#include "bat/confirmations/internal/unittest_utils.h"
+#include "bat/confirmations/internal/confirmations_unittest_utils.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-// npm run test -- brave_unit_tests --filter=Confirmations*
+// npm run test -- brave_unit_tests --filter=TerryToDo*
 
 using ::testing::_;
 
 namespace confirmations {
 
-class ConfirmationsRedeemPaymentTokensRequestTest : public ::testing::Test {
+class BatConfirmationsRedeemPaymentTokensRequestTest : public ::testing::Test {
  protected:
   std::unique_ptr<ConfirmationsClientMock> confirmations_client_mock_;
   std::unique_ptr<ConfirmationsImpl> confirmations_;
@@ -32,7 +32,7 @@ class ConfirmationsRedeemPaymentTokensRequestTest : public ::testing::Test {
 
   std::unique_ptr<RedeemPaymentTokensRequest> request_;
 
-  ConfirmationsRedeemPaymentTokensRequestTest() :
+  BatConfirmationsRedeemPaymentTokensRequestTest() :
       confirmations_client_mock_(std::make_unique<ConfirmationsClientMock>()),
       confirmations_(std::make_unique<ConfirmationsImpl>(
           confirmations_client_mock_.get())),
@@ -42,7 +42,7 @@ class ConfirmationsRedeemPaymentTokensRequestTest : public ::testing::Test {
     // You can do set-up work for each test here
   }
 
-  ~ConfirmationsRedeemPaymentTokensRequestTest() override {
+  ~BatConfirmationsRedeemPaymentTokensRequestTest() override {
     // You can do clean-up work that doesn't throw exceptions here
   }
 
@@ -96,7 +96,7 @@ class ConfirmationsRedeemPaymentTokensRequestTest : public ::testing::Test {
   }
 };
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, BuildUrl) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, BuildUrl) {
   // Arrange
   WalletInfo wallet_info;
   wallet_info.payment_id = "d4ed0af0-bfa9-464b-abd7-67b29d891b8b";
@@ -110,7 +110,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, BuildUrl) {
   EXPECT_EQ(expected_url, url);
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, GetMethod) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, GetMethod) {
   // Arrange
 
   // Act
@@ -120,7 +120,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, GetMethod) {
   EXPECT_EQ(URLRequestMethod::PUT, method);
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, BuildBody) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, BuildBody) {
   // Arrange
   WalletInfo wallet_info;
   wallet_info.payment_id = "d4ed0af0-bfa9-464b-abd7-67b29d891b8b";
@@ -141,7 +141,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, BuildBody) {
   EXPECT_EQ(expected_body, body);
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, CreatePayload) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, CreatePayload) {
   // Arrange
   WalletInfo wallet_info;
   wallet_info.payment_id = "d4ed0af0-bfa9-464b-abd7-67b29d891b8b";
@@ -156,7 +156,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, CreatePayload) {
   EXPECT_EQ(expected_payload, payload);
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, HeadersCount) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, HeadersCount) {
   // Arrange
 
   // Act
@@ -167,7 +167,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, HeadersCount) {
   EXPECT_EQ(1UL, count);
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, GetAcceptHeaderValue) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, GetAcceptHeaderValue) {
   // Arrange
 
   // Act
@@ -177,7 +177,7 @@ TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, GetAcceptHeaderValue) {
   EXPECT_EQ(accept_header_value, "application/json");
 }
 
-TEST_F(ConfirmationsRedeemPaymentTokensRequestTest, GetContentType) {
+TEST_F(BatConfirmationsRedeemPaymentTokensRequestTest, GetContentType) {
   // Arrange
 
   // Act

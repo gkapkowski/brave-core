@@ -53,5 +53,5 @@ cd /Applications/Brave\ Browser\ Dev.app/Contents
 
 ## Unit Tests
 ```
-npm run test -- brave_unit_tests --filter=Confirmations*
+npm run test -- brave_unit_tests --filter=BatConfirmations*
 ```

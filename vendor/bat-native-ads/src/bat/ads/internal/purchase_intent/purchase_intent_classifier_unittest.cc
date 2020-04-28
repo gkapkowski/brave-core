@@ -7,7 +7,7 @@
 #include <memory>
 #include <tuple>
 
-#include "bat/ads/internal/ads_client_mock.h"
+#include "bat/ads/ads_client_mock.h"
 #include "bat/ads/internal/ads_impl.h"
 
 #include "bat/ads/internal/time.h"
@@ -21,7 +21,7 @@
 
 using ::testing::_;
 
-// npm run test -- brave_unit_tests --filter=AdsPurchaseIntentClassifier*
+// npm run test -- brave_unit_tests --filter=TerryToDo*
 
 namespace ads {
 
@@ -78,11 +78,11 @@ std::vector<TestTriplets> kTestSearchQueries = {
 
 class AdsPurchaseIntentClassifierTest : public ::testing::Test {
  protected:
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  std::unique_ptr<AdsClientMock> mock_ads_client_;
   std::unique_ptr<AdsImpl> ads_;
 
   AdsPurchaseIntentClassifierTest() :
-      mock_ads_client_(std::make_unique<MockAdsClient>()),
+      mock_ads_client_(std::make_unique<AdsClientMock>()),
       ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
     // You can do set-up work for each test here
   }

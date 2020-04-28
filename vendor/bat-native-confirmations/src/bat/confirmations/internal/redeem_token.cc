@@ -16,7 +16,7 @@
 #include "bat/confirmations/internal/fetch_payment_token_request.h"
 #include "bat/confirmations/internal/logging.h"
 #include "bat/confirmations/internal/platform_helper.h"
-#include "bat/confirmations/internal/security_helper.h"
+#include "bat/confirmations/internal/security_utils.h"
 #include "bat/confirmations/internal/static_values.h"
 #include "bat/confirmations/internal/time.h"
 #include "bat/confirmations/internal/token_info.h"
@@ -468,10 +468,10 @@ ConfirmationInfo RedeemToken::CreateConfirmationInfo(
   confirmation.type = confirmation_type;
   confirmation.token_info = token;
 
-  auto payment_tokens = helper::Security::GenerateTokens(1);
+  auto payment_tokens = GenerateTokens(1);
   confirmation.payment_token = payment_tokens.front();
 
-  auto blinded_payment_tokens = helper::Security::BlindTokens(payment_tokens);
+  auto blinded_payment_tokens = BlindTokens(payment_tokens);
   auto blinded_payment_token = blinded_payment_tokens.front();
   confirmation.blinded_payment_token = blinded_payment_token;
 

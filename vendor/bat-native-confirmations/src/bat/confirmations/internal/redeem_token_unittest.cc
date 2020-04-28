@@ -12,15 +12,15 @@
 #include "bat/confirmations/internal/create_confirmation_request.h"
 #include "bat/confirmations/internal/platform_helper_mock.h"
 #include "bat/confirmations/internal/redeem_token_mock.h"
-#include "bat/confirmations/internal/security_helper.h"
+#include "bat/confirmations/internal/security_utils.h"
 #include "bat/confirmations/internal/unblinded_tokens.h"
-#include "bat/confirmations/internal/unittest_utils.h"
+#include "bat/confirmations/internal/confirmations_unittest_utils.h"
 
 #include "net/http/http_status_code.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// npm run test -- brave_unit_tests --filter=Confirmations*
+// npm run test -- brave_unit_tests --filter=BatConfirmations*
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -29,9 +29,9 @@ using ::testing::Return;
 
 namespace confirmations {
 
-class ConfirmationsRedeemTokenTest : public ::testing::Test {
+class BatConfirmationsRedeemTokenTest : public ::testing::Test {
  protected:
-  ConfirmationsRedeemTokenTest()
+  BatConfirmationsRedeemTokenTest()
       : confirmations_client_mock_(std::make_unique<
             NiceMock<ConfirmationsClientMock>>()),
         confirmations_mock_(std::make_unique<
@@ -47,7 +47,7 @@ class ConfirmationsRedeemTokenTest : public ::testing::Test {
     // You can do set-up work for each test here
   }
 
-  ~ConfirmationsRedeemTokenTest() override {
+  ~BatConfirmationsRedeemTokenTest() override {
     // You can do clean-up work that doesn't throw exceptions here
   }
 
@@ -87,7 +87,6 @@ class ConfirmationsRedeemTokenTest : public ::testing::Test {
 
   ConfirmationInfo GetConfirmationInfo() {
     ConfirmationInfo confirmation;
-
     confirmation.id = "9fd71bc4-1b8e-4c1e-8ddc-443193a09f91";
 
     confirmation.creative_instance_id = "70829d71-ce2e-4483-a4c0-e1e2bee96520";
@@ -129,7 +128,7 @@ class ConfirmationsRedeemTokenTest : public ::testing::Test {
   std::unique_ptr<RedeemTokenMock> redeem_token_mock_;
 };
 
-TEST_F(ConfirmationsRedeemTokenTest,
+TEST_F(BatConfirmationsRedeemTokenTest,
     RedeemToken) {
   // Arrange
   ON_CALL(*confirmations_client_mock_, LoadURL(_, _, _, _, _, _))
@@ -182,7 +181,7 @@ TEST_F(ConfirmationsRedeemTokenTest,
   // Assert
 }
 
-TEST_F(ConfirmationsRedeemTokenTest,
+TEST_F(BatConfirmationsRedeemTokenTest,
     RetryRedeemToken) {
   // Arrange
   ON_CALL(*confirmations_client_mock_, LoadURL(_, _, _, _, _, _))
@@ -231,7 +230,7 @@ TEST_F(ConfirmationsRedeemTokenTest,
   // Assert
 }
 
-TEST_F(ConfirmationsRedeemTokenTest,
+TEST_F(BatConfirmationsRedeemTokenTest,
     FailedToRedeemToken_FetchPaymentTokenRespondsWith404NotFound) {
   // Arrange
   ON_CALL(*confirmations_client_mock_, LoadURL(_, _, _, _, _, _))
@@ -282,7 +281,7 @@ TEST_F(ConfirmationsRedeemTokenTest,
   // Assert
 }
 
-TEST_F(ConfirmationsRedeemTokenTest,
+TEST_F(BatConfirmationsRedeemTokenTest,
     FailedToRedeemToken_FetchPaymentTokenRespondsWith500InternalServerError) {
   // Arrange
   ON_CALL(*confirmations_client_mock_, LoadURL(_, _, _, _, _, _))

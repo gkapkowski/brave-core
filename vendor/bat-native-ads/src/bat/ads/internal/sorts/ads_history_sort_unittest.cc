@@ -4,26 +4,26 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat/ads/internal/sorts/ads_history_sort_factory.h"
-#include "bat/ads/internal/client_mock.h"
-#include "bat/ads/internal/ads_client_mock.h"
-#include "bat/ads/internal/ads_impl.h"
+
+#include <deque>
+#include <memory>
+
+#include "bat/ads/ad_history.h"
+
+#include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // npm run test -- brave_unit_tests --filter=BatAds*
 
-using std::placeholders::_1;
-
 namespace ads {
 
-class BatAdsHistorySortTest : public ::testing::Test {
+class BatAdsAdsHistorySortTest : public ::testing::Test {
  protected:
-  BatAdsHistorySortTest()
-      : mock_ads_client_(std::make_unique<MockAdsClient>()),
-        ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+  BatAdsAdsHistorySortTest() {
     // You can do set-up work for each test here
   }
 
-  ~BatAdsHistorySortTest() override {
+  ~BatAdsAdsHistorySortTest() override {
     // You can do clean-up work that doesn't throw exceptions here
   }
 
@@ -33,13 +33,6 @@ class BatAdsHistorySortTest : public ::testing::Test {
   void SetUp() override {
     // Code here will be called immediately after the constructor (right before
     // each test)
-
-    auto callback = std::bind(
-        &BatAdsHistorySortTest::OnAdsImplInitialize, this, _1);
-    ads_->Initialize(callback);
-
-    client_mock_ =
-        std::make_unique<ClientMock>(ads_.get(), mock_ads_client_.get());
   }
 
   void TearDown() override {
@@ -47,37 +40,26 @@ class BatAdsHistorySortTest : public ::testing::Test {
     // destructor)
   }
 
-  void OnAdsImplInitialize(const Result result) {
-    EXPECT_EQ(Result::SUCCESS, result);
-  }
+  std::deque<AdHistory> GetUnsortedAdsHistory() {
+    std::deque<AdHistory> ads_history;
 
-  std::deque<AdHistory> GetUnsortedHistory() {
-    AdContent ad_content;
-    CategoryContent category_content;
-
-    std::deque<AdHistory> history;
     AdHistory ad_history;
     ad_history.timestamp_in_seconds = 22222222222;
-    history.push_back(ad_history);
+    ads_history.push_back(ad_history);
     ad_history.timestamp_in_seconds = 33333333333;
-    history.push_back(ad_history);
+    ads_history.push_back(ad_history);
     ad_history.timestamp_in_seconds = 11111111111;
-    history.push_back(ad_history);
+    ads_history.push_back(ad_history);
     ad_history.timestamp_in_seconds = 55555555555;
-    history.push_back(ad_history);
+    ads_history.push_back(ad_history);
     ad_history.timestamp_in_seconds = 44444444444;
-    history.push_back(ad_history);
+    ads_history.push_back(ad_history);
 
-    return history;
+    return ads_history;
   }
-
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
-  std::unique_ptr<AdsImpl> ads_;
-
-  std::unique_ptr<ClientMock> client_mock_;
 };
 
-TEST_F(BatAdsHistorySortTest,
+TEST_F(BatAdsAdsHistorySortTest,
     NoSortOrder) {
   // Arrange
 
@@ -85,15 +67,21 @@ TEST_F(BatAdsHistorySortTest,
   const auto sort = AdsHistorySortFactory::Build(AdsHistory::SortType::kNone);
 
   // Assert
-  ASSERT_EQ(sort, nullptr);
+  ASSERT_EQ(nullptr, sort);
 }
 
-TEST_F(BatAdsHistorySortTest,
+TEST_F(BatAdsAdsHistorySortTest,
     DescendingSortOrder) {
   // Arrange
-  const auto sort =
-      AdsHistorySortFactory::Build(AdsHistory::SortType::kDescendingOrder);
+  const auto sort = AdsHistorySortFactory::Build(
+      AdsHistory::SortType::kDescendingOrder);
 
+  std::deque<AdHistory> history = GetUnsortedAdsHistory();
+
+  // Act
+  history = sort->Apply(history);
+
+  // Assert
   std::deque<AdHistory> expected_history;
   AdHistory ad_history;
   ad_history.timestamp_in_seconds = 55555555555;
@@ -107,36 +95,31 @@ TEST_F(BatAdsHistorySortTest,
   ad_history.timestamp_in_seconds = 11111111111;
   expected_history.push_back(ad_history);
 
-  auto history = GetUnsortedHistory();
-
-  // Act
-  history = sort->Apply(history);
-
-  // Assert
-  ASSERT_EQ(expected_history, history);
+  EXPECT_EQ(expected_history, history);
 }
 
-TEST_F(BatAdsHistorySortTest,
+TEST_F(BatAdsAdsHistorySortTest,
     DescendingSortOrderForEmptyHistory) {
   // Arrange
-  const auto sort =
-      AdsHistorySortFactory::Build(AdsHistory::SortType::kDescendingOrder);
+  const auto sort = AdsHistorySortFactory::Build(
+      AdsHistory::SortType::kDescendingOrder);
 
-  std::deque<AdHistory> expected_history;
-  std::deque<AdHistory> history;
+  std::deque<AdHistory> history = {};
 
   // Act
   history = sort->Apply(history);
 
   // Assert
-  ASSERT_EQ(expected_history, history);
+  const std::deque<AdHistory> expected_history = {};
+
+  EXPECT_EQ(expected_history, history);
 }
 
-TEST_F(BatAdsHistorySortTest,
+TEST_F(BatAdsAdsHistorySortTest,
     AscendingSortOrder) {
   // Arrange
-  const auto sort =
-      AdsHistorySortFactory::Build(AdsHistory::SortType::kAscendingOrder);
+  const auto sort = AdsHistorySortFactory::Build(
+      AdsHistory::SortType::kAscendingOrder);
 
   std::deque<AdHistory> expected_history;
   AdHistory ad_history;
@@ -151,20 +134,20 @@ TEST_F(BatAdsHistorySortTest,
   ad_history.timestamp_in_seconds = 55555555555;
   expected_history.push_back(ad_history);
 
-  auto history = GetUnsortedHistory();
+  std::deque<AdHistory> history = GetUnsortedAdsHistory();
 
   // Act
   history = sort->Apply(history);
 
   // Assert
-  ASSERT_EQ(expected_history, history);
+  EXPECT_EQ(expected_history, history);
 }
 
-TEST_F(BatAdsHistorySortTest,
+TEST_F(BatAdsAdsHistorySortTest,
     AscendingSortOrderForEmptyHistory) {
   // Arrange
-  const auto sort =
-      AdsHistorySortFactory::Build(AdsHistory::SortType::kAscendingOrder);
+  const auto sort = AdsHistorySortFactory::Build(
+      AdsHistory::SortType::kAscendingOrder);
 
   std::deque<AdHistory> expected_history;
   std::deque<AdHistory> history;
@@ -173,7 +156,7 @@ TEST_F(BatAdsHistorySortTest,
   history = sort->Apply(history);
 
   // Assert
-  ASSERT_EQ(expected_history, history);
+  EXPECT_EQ(expected_history, history);
 }
 
 }  // namespace ads

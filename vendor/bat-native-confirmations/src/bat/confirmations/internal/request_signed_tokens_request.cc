@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "bat/confirmations/internal/ads_serve_helper.h"
-#include "bat/confirmations/internal/security_helper.h"
-#include "bat/confirmations/internal/string_helper.h"
+#include "bat/confirmations/internal/security_utils.h"
+#include "bat/confirmations/internal/string_utils.h"
 
 #include "base/json/json_writer.h"
 #include "base/logging.h"
@@ -86,9 +86,8 @@ std::string RequestSignedTokensRequest::BuildDigestHeaderValue(
     return value;
   }
 
-  const std::vector<uint8_t> body_sha256 = helper::Security::GetSHA256(body);
-  const std::string body_sha256_base64 =
-      helper::Security::GetBase64(body_sha256);
+  const std::vector<uint8_t> body_sha256 = Sha256(body);
+  const std::string body_sha256_base64 = Base64Encode(body_sha256);
 
   value = "SHA-256=" + body_sha256_base64;
 
@@ -101,9 +100,9 @@ std::string RequestSignedTokensRequest::BuildSignatureHeaderValue(
   const std::string value = BuildDigestHeaderValue(body);
 
   const std::vector<uint8_t> private_key =
-      helper::String::decode_hex(wallet_info.private_key);
+      DecodeHexString(wallet_info.private_key);
 
-  return helper::Security::Sign({{"digest", value}}, "primary", private_key);
+  return Sign({{"digest", value}}, "primary", private_key);
 }
 
 std::string RequestSignedTokensRequest::GetAcceptHeaderValue() const {

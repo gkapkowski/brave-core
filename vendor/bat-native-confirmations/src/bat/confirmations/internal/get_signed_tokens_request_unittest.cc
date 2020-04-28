@@ -10,11 +10,10 @@
 
 #include "bat/confirmations/wallet_info.h"
 
+#include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// npm run test -- brave_unit_tests --filter=Confirmations*
-
-using std::placeholders::_1;
+// npm run test -- brave_unit_tests --filter=BatConfirmations*
 
 namespace confirmations {
 
@@ -47,7 +46,8 @@ class ConfirmationsGetSignedTokensRequestTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case
 };
 
-TEST_F(ConfirmationsGetSignedTokensRequestTest, BuildUrl) {
+TEST_F(ConfirmationsGetSignedTokensRequestTest,
+    BuildUrl) {
   // Arrange
   WalletInfo wallet_info;
   wallet_info.payment_id = "d4ed0af0-bfa9-464b-abd7-67b29d891b8b";
@@ -63,7 +63,8 @@ TEST_F(ConfirmationsGetSignedTokensRequestTest, BuildUrl) {
   EXPECT_EQ(expected_url, url);
 }
 
-TEST_F(ConfirmationsGetSignedTokensRequestTest, GetMethod) {
+TEST_F(ConfirmationsGetSignedTokensRequestTest,
+    GetMethod) {
   // Arrange
 
   // Act
