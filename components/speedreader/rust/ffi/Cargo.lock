@@ -169,16 +169,17 @@ dependencies = [
 [[package]]
 name = "cssparser"
 version = "0.25.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/AndriusA/rust-cssparser?branch=glibc#ad2f4d3c89e247ec1693a581ecace199e46f30fa"
 dependencies = [
  "autocfg 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "cssparser-macros 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cssparser-macros 0.3.6 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)",
  "dtoa-short 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itoa 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libm 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "phf 0.7.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2 1.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "procedural-masquerade 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "procedural-masquerade 0.1.6 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)",
  "quote 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 1.0.17 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -187,11 +188,11 @@ dependencies = [
 [[package]]
 name = "cssparser-macros"
 version = "0.3.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/AndriusA/rust-cssparser?branch=glibc#ad2f4d3c89e247ec1693a581ecace199e46f30fa"
 dependencies = [
  "phf_codegen 0.7.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2 1.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "procedural-masquerade 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "procedural-masquerade 0.1.6 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)",
  "quote 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 1.0.17 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -359,6 +360,11 @@ version = "0.2.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "libm"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "lifeguard"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -378,7 +384,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "cssparser 0.25.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cssparser 0.25.9 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)",
  "encoding_rs 0.8.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazycell 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -630,7 +636,7 @@ dependencies = [
 [[package]]
 name = "procedural-masquerade"
 version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/AndriusA/rust-cssparser?branch=glibc#ad2f4d3c89e247ec1693a581ecace199e46f30fa"
 
 [[package]]
 name = "psl"
@@ -973,7 +979,7 @@ version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "cssparser 0.25.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cssparser 0.25.9 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)",
  "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1329,8 +1335,8 @@ dependencies = [
 "checksum core-foundation 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
 "checksum core-foundation-sys 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 "checksum crc32fast 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ba125de2af0df55319f41944744ad91c71113bf74a4646efff39afe1f6842db1"
-"checksum cssparser 0.25.9 (registry+https://github.com/rust-lang/crates.io-index)" = "fbe18ca4efb9ba3716c6da66cc3d7e673bf59fa576353011f48c4cfddbdd740e"
-"checksum cssparser-macros 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)" = "5bb1c84e87c717666564ec056105052331431803d606bd45529b28547b611eef"
+"checksum cssparser 0.25.9 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)" = "<none>"
+"checksum cssparser-macros 0.3.6 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)" = "<none>"
 "checksum dtoa 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)" = "4358a9e11b9a09cf52383b451b49a169e8d797b68aa02301ff586d70d9661ea3"
 "checksum dtoa-short 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "59020b8513b76630c49d918c33db9f4c91638e7d3404a28084083b87e33f76f2"
 "checksum either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "bb1f6b1ce1c140482ea30ddd3335fc0024ac7ee112895426e0a629a6c20adfe3"
@@ -1352,6 +1358,7 @@ dependencies = [
 "checksum lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 "checksum lazycell 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
 "checksum libc 0.2.69 (registry+https://github.com/rust-lang/crates.io-index)" = "99e85c08494b21a9054e7fe1374a732aeadaff3980b6990b94bfd3a70f690005"
+"checksum libm 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c7d73b3f436185384286bd8098d17ec07c9a7d2388a6599f824d8502b529702a"
 "checksum lifeguard 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "eee00513d51f9a08737b74a286c761fc641114d1d5d6329beb11510049ec405f"
 "checksum log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)" = "14b6052be84e6b71ab17edffc2eeabf5c2c3ae1fdb464aae35ac50c67a44e1f7"
 "checksum lol_html 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "169299b3b58aa5cd8ad25fd8fe984e93748046d24c80f05aaadd9022f95423ec"
@@ -1386,7 +1393,7 @@ dependencies = [
 "checksum proc-macro-hack 0.5.15 (registry+https://github.com/rust-lang/crates.io-index)" = "0d659fe7c6d27f25e9d80a1a094c223f5246f6a6596453e09d7229bf42750b63"
 "checksum proc-macro2 0.4.30 (registry+https://github.com/rust-lang/crates.io-index)" = "cf3d2011ab5c909338f7887f4fc896d35932e29146c12c8d01da6b22a80ba759"
 "checksum proc-macro2 1.0.10 (registry+https://github.com/rust-lang/crates.io-index)" = "df246d292ff63439fea9bc8c0a270bed0e390d5ebd4db4ba15aba81111b5abe3"
-"checksum procedural-masquerade 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "9a1574a51c3fd37b26d2c0032b649d08a7d51d4cca9c41bbc5bf7118fa4509d0"
+"checksum procedural-masquerade 0.1.6 (git+https://github.com/AndriusA/rust-cssparser?branch=glibc)" = "<none>"
 "checksum psl 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0fcd4da9d98f254ad641dd081207cc14fcbec95dd58ee62ffc9b96f0684fd6c2"
 "checksum psl-codegen 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "06f94f31e4f36b42e21b831d20bf0efc805b2155624697fb86f987b666518c3b"
 "checksum psl-lexer 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6cf84fe23023e855b9a9d038a1b08d5c438d3961d2ced6c2b2358b29fbf74a63"
