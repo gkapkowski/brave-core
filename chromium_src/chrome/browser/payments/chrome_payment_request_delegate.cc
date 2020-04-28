@@ -5,10 +5,11 @@
 
 #include "brave/browser/brave_rewards/checkout_dialog.h"
 
-#define BRAVE_SHOW_BAT_PAYMENT_UI \
-  if (request->spec() && request->spec()->stringified_method_data().count("bat") > 0) { \
-    brave_rewards::ShowCheckoutDialog(web_contents_, request); \
-    return; \
+#define BRAVE_SHOW_BAT_PAYMENT_UI                                    \
+  if (request->spec() &&                                             \
+      request->spec()->stringified_method_data().count("bat") > 0) { \
+    brave_rewards::ShowCheckoutDialog(web_contents_, request);       \
+    return;                                                          \
   }
 #include "../../../../../chrome/browser/payments/chrome_payment_request_delegate.cc"
 #undef BRAVE_SHOW_BAT_PAYMENT_UI

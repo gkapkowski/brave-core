@@ -7,108 +7,149 @@
 
 #include <memory>
 #include <vector>
+#include <utility>
 
+#include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/values.h"
 #include "brave/common/webui_url_constants.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/webui/constrained_web_dialog_ui.h"
-#include "components/web_modal/web_contents_modal_dialog_host.h"
 #include "components/payments/content/payment_request.h"
+#include "components/payments/core/payer_data.h"
+#include "components/web_modal/web_contents_modal_dialog_host.h"
 #include "content/public/browser/web_contents.h"
+#include "third_party/blink/public/mojom/payments/payment_request.mojom.h"
 #include "ui/web_dialogs/web_dialog_delegate.h"
 
 using content::WebContents;
 using content::WebUIMessageHandler;
-using payments::mojom::PaymentItemPtr;
 using payments::PaymentRequest;
+using payments::mojom::PaymentComplete;
+using payments::mojom::PaymentItemPtr;
 
-namespace {
+namespace brave_rewards {
 
-constexpr int kDialogMinWidth = 548; // 490;
+constexpr int kDialogMinWidth = 548;  // 490;
 constexpr int kDialogMinHeight = 200;
 
 constexpr int kDialogMaxWidth = 548;
 constexpr int kDialogMaxHeight = 800;
 
-class CheckoutDialogDelegate : public ui::WebDialogDelegate {
- public:
-  CheckoutDialogDelegate(base::Value params, PaymentRequest* request)
-      : params_(std::move(params)),
-        request_(request) {}
+const char kBat[] = "bat";
 
-  ~CheckoutDialogDelegate() override {}
+CheckoutDialogDelegate::CheckoutDialogDelegate(base::Value params,
+                                               PaymentRequest* request)
+    : params_(std::move(params)), request_(request) {}
 
-  ui::ModalType GetDialogModalType() const override {
-    // Not used, returning dummy value.
-    NOTREACHED();
-    return ui::MODAL_TYPE_WINDOW;
-  }
+CheckoutDialogDelegate::~CheckoutDialogDelegate() = default;
 
-  base::string16 GetDialogTitle() const override {
-    return base::string16();
-  }
+ui::ModalType CheckoutDialogDelegate::GetDialogModalType() const {
+  // Not used, returning dummy value.
+  NOTREACHED();
+  return ui::MODAL_TYPE_WINDOW;
+}
 
-  GURL GetDialogContentURL() const override {
-    return GURL(kBraveUICheckoutURL);
-  }
+base::string16 CheckoutDialogDelegate::GetDialogTitle() const {
+  return base::string16();
+}
 
-  void GetWebUIMessageHandlers(
-      std::vector<WebUIMessageHandler*>* handlers) const override {
-    // BraveCheckoutUI will add message handlers.
-  }
+GURL CheckoutDialogDelegate::GetDialogContentURL() const {
+  return GURL(kBraveUICheckoutURL);
+}
 
-  void GetDialogSize(gfx::Size* size) const override {
-    // TODO(zenparsing): Is the constrained modal dialog
-    // really what we want? It is designed for interfaces
-    // that are fixed size for a given screen size.
-  }
+void CheckoutDialogDelegate::GetWebUIMessageHandlers(
+    std::vector<WebUIMessageHandler*>* handlers) const {
+  // BraveCheckoutUI will add message handlers.
+  handlers->push_back(new CheckoutDialogHandler(request_));
+}
 
-  std::string GetDialogArgs() const override {
-    std::string json;
-    base::JSONWriter::Write(params_, &json);
-    return json;
-  }
+void CheckoutDialogDelegate::GetDialogSize(gfx::Size* size) const {
+  // TODO(zenparsing): Is the constrained modal dialog
+  // really what we want? It is designed for interfaces
+  // that are fixed size for a given screen size.
+}
 
-  void OnDialogClosed(const std::string& json_retval) override {
-    request_->UserCancelled();
+std::string CheckoutDialogDelegate::GetDialogArgs() const {
+  std::string json;
+  base::JSONWriter::Write(params_, &json);
+  return json;
+}
+
+void CheckoutDialogDelegate::OnDialogClosed(const std::string& json_retval) {
+  base::Optional<base::Value> value = base::JSONReader::Read(json_retval);
+  if (!value || !value->is_dict()) {
     return;
   }
 
-  void OnCloseContents(
-      WebContents* source,
-      bool* out_close_dialog) override {
-    *out_close_dialog = true;
+  base::DictionaryValue* dictionary = nullptr;
+  if (!value->GetAsDictionary(&dictionary)) {
+    return;
   }
 
-  bool ShouldShowDialogTitle() const override {
-    return false;
+  const auto* action = dictionary->FindStringKey("action");
+  if (!action) {
+    return;
   }
 
- private:
-  base::Value params_;
-  PaymentRequest* request_;
+  if (base::CompareCaseInsensitiveASCII(*action, "cancel") == 0) {
+    request_->UserCancelled();
+  }
+  return;
+}
 
-  DISALLOW_COPY_AND_ASSIGN(CheckoutDialogDelegate);
-};
+void CheckoutDialogDelegate::OnCloseContents(WebContents* source,
+                                             bool* out_close_dialog) {
+  *out_close_dialog = true;
+}
 
-}  // namespace
+bool CheckoutDialogDelegate::ShouldShowDialogTitle() const {
+  return false;
+}
 
-namespace brave_rewards {
+CheckoutDialogHandler::CheckoutDialogHandler(PaymentRequest* request)
+    : request_(request) {}
+
+CheckoutDialogHandler::~CheckoutDialogHandler() = default;
+
+// Overridden from WebUIMessageHandler
+void CheckoutDialogHandler::RegisterMessages() {
+  web_ui()->RegisterMessageCallback(
+      "paymentRequestComplete",
+      base::BindRepeating(&CheckoutDialogHandler::HandlePaymentCompletion,
+                          base::Unretained(this)));
+}
+
+void CheckoutDialogHandler::HandlePaymentCompletion(
+    const base::ListValue* args) {
+  payments::mojom::PaymentResponsePtr response =
+      payments::mojom::PaymentResponse::New();
+  response->method_name = kBat;
+  response->stringified_details = "{}";
+
+  payments::mojom::PayerDetailPtr payer = payments::mojom::PayerDetail::New();
+
+  response->payer = std::move(payer);
+  request_->Pay();
+  request_->OnPaymentResponseAvailable(std::move(response));
+  // request_->Complete(PaymentComplete::SUCCESS);
+}
 
 void ShowCheckoutDialog(WebContents* initiator, PaymentRequest* request) {
   double total;
   std::string description = "";
-  
+
   auto* spec = request->spec();
   if (!spec) {
-    return;  
+    return;
   }
 
-  //TODO (jumde): handle errors
+  // TODO(jumde): handle errors
   base::StringToDouble(spec->details().total->amount->value, &total);
-  for(auto it = spec->details().display_items->begin(); it != spec->details().display_items->end(); ++it) {
+  for (auto it = spec->details().display_items->begin();
+       it != spec->details().display_items->end(); ++it) {
     description = description + it->get()->label + ", ";
   }
 
@@ -125,8 +166,7 @@ void ShowCheckoutDialog(WebContents* initiator, PaymentRequest* request) {
   ShowConstrainedWebDialogWithAutoResize(
       initiator->GetBrowserContext(),
       std::make_unique<CheckoutDialogDelegate>(std::move(params), request),
-      initiator,
-      gfx::Size(kDialogMinWidth, kDialogMinHeight),
+      initiator, gfx::Size(kDialogMinWidth, kDialogMinHeight),
       gfx::Size(kDialogMaxWidth, kDialogMaxHeight));
 }
 
