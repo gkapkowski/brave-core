@@ -47,16 +47,39 @@ GURL GetOriginOrURL(
   return top_origin.GetURL();
 }
 
+bool IsBraveShieldsDown(const blink::WebFrame* frame,
+                        const GURL& secondary_url,
+                        const ContentSettingsForOneType& rules) {
+  ContentSetting setting = CONTENT_SETTING_DEFAULT;
+  const GURL& primary_url = GetOriginOrURL(frame);
+
+  for (const auto& rule : rules) {
+    if (rule.primary_pattern.Matches(primary_url) &&
+        rule.secondary_pattern.Matches(secondary_url)) {
+      setting = rule.GetContentSetting();
+      break;
+    }
+  }
+
+  return setting == CONTENT_SETTING_BLOCK;
+}
+
 // This method can only be used for brave plugin content settings because
 // they are implemented incorrectly and swap primary/secondary url
 template <typename URL>
 ContentSetting GetBraveContentSettingFromRules(
+    const ContentSettingsForOneType& shield_rules,
     const ContentSettingsForOneType& rules,
     const blink::WebFrame* frame,
     const URL& secondary_url) {
+  // if shields is down, allow everything
+  if (IsBraveShieldsDown(frame, secondary_url, shield_rules))
+    return CONTENT_SETTING_ALLOW;
+
   // If there is only one rule, it's the default rule and we don't need to match
   // the patterns.
   if (rules.size() == 1) {
+    LOG(INFO) << "only 1 rule";
     DCHECK(rules[0].primary_pattern == ContentSettingsPattern::Wildcard());
     DCHECK(rules[0].secondary_pattern == ContentSettingsPattern::Wildcard());
     return rules[0].GetContentSetting();
@@ -67,9 +90,11 @@ ContentSetting GetBraveContentSettingFromRules(
     // this swap is intentional - see comment at the beginning of the method
     if (rule.primary_pattern.Matches(secondary_gurl) &&
         rule.secondary_pattern.Matches(primary_url)) {
+      LOG(INFO) << "matched on " << secondary_gurl << ", " << primary_url;
       return rule.GetContentSetting();
     }
   }
+  LOG(INFO) << "no content setting rules match, returning default";
   return CONTENT_SETTING_DEFAULT;
 }
 
@@ -219,20 +244,9 @@ ContentSetting BraveContentSettingsAgentImpl::GetFPContentSettingFromRules(
 bool BraveContentSettingsAgentImpl::IsBraveShieldsDown(
     const blink::WebFrame* frame,
     const GURL& secondary_url) {
-  ContentSetting setting = CONTENT_SETTING_DEFAULT;
-  const GURL& primary_url = GetOriginOrURL(frame);
-
-  if (content_setting_rules_) {
-    for (const auto& rule : content_setting_rules_->brave_shields_rules) {
-      if (rule.primary_pattern.Matches(primary_url) &&
-          rule.secondary_pattern.Matches(secondary_url)) {
-        setting = rule.GetContentSetting();
-        break;
-      }
-    }
-  }
-
-  return setting == CONTENT_SETTING_BLOCK;
+  return !content_setting_rules_ ||
+         ::IsBraveShieldsDown(frame, secondary_url,
+                              content_setting_rules_->brave_shields_rules);
 }
 
 bool BraveContentSettingsAgentImpl::AllowFingerprinting(
@@ -279,17 +293,22 @@ BraveFarblingLevel BraveContentSettingsAgentImpl::GetBraveFarblingLevel() {
   ContentSetting setting = CONTENT_SETTING_DEFAULT;
   if (content_setting_rules_) {
     setting = GetBraveContentSettingFromRules(
+        content_setting_rules_->brave_shields_rules,
         content_setting_rules_->fingerprinting_rules, frame,
         url::Origin(frame->GetDocument().GetSecurityOrigin()).GetURL());
   }
 
   if (base::FeatureList::IsEnabled(
       brave_shields::features::kFingerprintingProtectionV2)) {
+    LOG(INFO) << "using fingerprinting v2 rules";
     if (setting == CONTENT_SETTING_BLOCK) {
+      LOG(INFO) << "CONTENT_SETTING_BLOCK means BraveFarblingLevel::MAXIMUM";
       return BraveFarblingLevel::MAXIMUM;
     } else if (setting == CONTENT_SETTING_ALLOW) {
+      LOG(INFO) << "CONTENT_SETTING_ALLOW means BraveFarblingLevel::OFF";
       return BraveFarblingLevel::OFF;
     } else {
+      LOG(INFO) << "CONTENT_SETTING_DEFAULT means BraveFarblingLevel::BALANCED";
       return BraveFarblingLevel::BALANCED;
     }
   } else {
