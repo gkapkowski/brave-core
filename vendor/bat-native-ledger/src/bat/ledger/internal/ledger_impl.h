@@ -733,12 +733,20 @@ class LedgerImpl : public ledger::Ledger {
       ledger::ResultCallback callback);
 
  private:
+  void MaybeInitializeConfirmations(
+      const bool execute_create_script,
+      ledger::ResultCallback callback);
+
   void InitializeConfirmations(
       const bool execute_create_script,
       ledger::ResultCallback callback);
 
   void OnConfirmationsInitialized(
       const bool success,
+      const bool execute_create_script,
+      ledger::ResultCallback callback);
+
+  void InitializeDatabase(
       const bool execute_create_script,
       ledger::ResultCallback callback);
 

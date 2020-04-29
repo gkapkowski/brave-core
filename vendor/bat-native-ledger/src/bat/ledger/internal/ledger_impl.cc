@@ -27,6 +27,7 @@
 #include "bat/ledger/internal/report/report.h"
 #include "bat/ledger/internal/ledger_impl.h"
 #include "bat/ledger/internal/media/helper.h"
+#include "bat/ledger/internal/state_keys.h"
 #include "bat/ledger/internal/static_values.h"
 #include "net/http/http_status_code.h"
 
@@ -126,7 +127,22 @@ void LedgerImpl::Initialize(
 
   initializing_ = true;
 
-  InitializeConfirmations(execute_create_script, callback);
+  MaybeInitializeConfirmations(execute_create_script, callback);
+}
+
+void LedgerImpl::MaybeInitializeConfirmations(
+    const bool execute_create_script,
+    ledger::ResultCallback callback) {
+  const bool is_enabled = GetBooleanState(ledger::kStateEnabled);
+
+  const bool is_enabled_migrated =
+      GetBooleanState(ledger::kStateEnabledMigrated);
+
+  if (is_enabled || !is_enabled_migrated) {
+    InitializeConfirmations(execute_create_script, callback);
+  } else {
+    InitializeDatabase(execute_create_script, callback);
+  }
 }
 
 void LedgerImpl::InitializeConfirmations(
@@ -142,7 +158,7 @@ void LedgerImpl::InitializeConfirmations(
       this,
       _1,
       execute_create_script,
-      callback);
+      std::move(callback));
   bat_confirmations_->Initialize(initialized_callback);
 }
 
@@ -151,10 +167,18 @@ void LedgerImpl::OnConfirmationsInitialized(
     const bool execute_create_script,
     ledger::ResultCallback callback) {
   if (!success) {
+    // If confirmations fails we should fall-through and continue initializing
+    // ledger
     BLOG(this, ledger::LogLevel::LOG_ERROR) <<
         "Failed to initialize confirmations";
   }
 
+  InitializeDatabase(execute_create_script, callback);
+}
+
+void LedgerImpl::InitializeDatabase(
+    const bool execute_create_script,
+    ledger::ResultCallback callback) {
   ledger::ResultCallback finish_callback =
       std::bind(&LedgerImpl::OnWalletInitializedInternal,
           this,
@@ -164,8 +188,9 @@ void LedgerImpl::OnConfirmationsInitialized(
   auto database_callback = std::bind(&LedgerImpl::OnDatabaseInitialized,
       this,
       _1,
-      finish_callback);
-  bat_database_->Initialize(execute_create_script, database_callback);
+      std::move(finish_callback));
+  bat_database_->Initialize(execute_create_script,
+      std::move(database_callback));
 }
 
 void LedgerImpl::CreateWallet(ledger::ResultCallback callback) {
@@ -360,6 +385,10 @@ void LedgerImpl::OnLedgerStateLoaded(
 
 void LedgerImpl::SetConfirmationsWalletInfo(
     const ledger::WalletInfoProperties& wallet_info_properties) {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   if (wallet_info_properties.key_info_seed.size() != SEED_LENGTH) {
     BLOG(this, ledger::LogLevel::LOG_ERROR) << "Failed to initialize "
         "confirmations due to invalid wallet";
@@ -973,6 +1002,10 @@ void LedgerImpl::LogResponse(
 }
 
 void LedgerImpl::UpdateAdsRewards() {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   bat_confirmations_->UpdateAdsRewards(false);
 }
 
@@ -1219,6 +1252,10 @@ void LedgerImpl::SaveNormalizedPublisherList(ledger::PublisherInfoList list) {
 }
 
 void LedgerImpl::SetCatalogIssuers(const std::string& info) {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   ads::IssuersInfo issuers_info_ads;
   if (issuers_info_ads.FromJson(info) != ads::Result::SUCCESS)
     return;
@@ -1238,6 +1275,10 @@ void LedgerImpl::SetCatalogIssuers(const std::string& info) {
 void LedgerImpl::ConfirmAd(
     const std::string& json,
     const std::string& confirmation_type) {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   ads::AdInfo ad_info;
   if (ad_info.FromJson(json) != ads::Result::SUCCESS) {
     return;
@@ -1258,12 +1299,20 @@ void LedgerImpl::ConfirmAction(
     const std::string& creative_instance_id,
     const std::string& creative_set_id,
     const std::string& confirmation_type) {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   bat_confirmations_->ConfirmAction(creative_instance_id, creative_set_id,
       confirmations::ConfirmationType(confirmation_type));
 }
 
 void LedgerImpl::GetTransactionHistory(
     ledger::GetTransactionHistoryCallback callback) {
+  if (!bat_confirmations_) {
+    return;
+  }
+
   bat_confirmations_->GetTransactionHistory(callback);
 }
 
