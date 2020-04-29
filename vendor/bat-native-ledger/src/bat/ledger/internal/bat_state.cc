@@ -11,8 +11,15 @@
 #include "bat/ledger/internal/common/time_util.h"
 #include "bat/ledger/internal/ledger_impl.h"
 #include "bat/ledger/internal/state/client_state.h"
+#include "bat/ledger/internal/state_keys.h"
 
 using std::placeholders::_1;
+
+namespace {
+
+const int kCurrentVersionNumber = 1;
+
+}  // namespace
 
 namespace braveledger_bat_state {
 
@@ -117,11 +124,14 @@ void BatState::RemoveReconcileById(const std::string& viewingId) {
 }
 
 void BatState::SetRewardsMainEnabled(bool enabled) {
-  state_->rewards_enabled = enabled;
-  SaveState();
+  ledger_->SetBooleanState(ledger::kStateEnabled, enabled);
 }
 
 bool BatState::GetRewardsMainEnabled() const {
+  return ledger_->GetBooleanState(ledger::kStateEnabled);
+}
+
+bool BatState::LegacyGetRewardsMainEnabled() const {
   return state_->rewards_enabled;
 }
 
@@ -158,11 +168,14 @@ bool BatState::GetUserChangedContribution() const {
 }
 
 void BatState::SetAutoContribute(bool enabled) {
-  state_->auto_contribute = enabled;
-  SaveState();
+  ledger_->SetBooleanState(ledger::kStateAutoContribute, enabled);
 }
 
 bool BatState::GetAutoContribute() const {
+  return ledger_->GetBooleanState(ledger::kStateAutoContribute);
+}
+
+bool BatState::LegacyGetAutoContribute() const {
   return state_->auto_contribute;
 }
 
@@ -376,6 +389,48 @@ bool BatState::GetInlineTipSetting(const std::string& key) const {
   } else {
     return state_->inline_tips[key];
   }
+}
+
+bool BatState::Migrate() {
+  const int current_version = ledger_->GetIntegerState(ledger::kStateVersion);
+
+  for (auto i = current_version + 1; i <= kCurrentVersionNumber; i++) {
+    if (!Migrate(i)) {
+      BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
+      "State: Error with migration from " << (i - 1) << " to " << i;
+      return false;
+    }
+
+    BLOG(ledger_, ledger::LogLevel::LOG_INFO) <<
+    "State: Migrated to version " << i;
+
+    ledger_->SetIntegerState(ledger::kStateVersion,  i);
+  }
+
+  return true;
+}
+
+bool BatState::Migrate(int version) {
+  switch (version) {
+    case 1: {
+      return MigrateToVersion1();
+    }
+  }
+
+  NOTREACHED();
+  return false;
+}
+
+bool BatState::MigrateToVersion1() {
+  ledger_->SetBooleanState(
+      ledger::kStateEnabled,
+      LegacyGetRewardsMainEnabled());
+
+  ledger_->SetBooleanState(
+      ledger::kStateAutoContribute,
+      LegacyGetAutoContribute());
+
+  return true;
 }
 
 }  // namespace braveledger_bat_state

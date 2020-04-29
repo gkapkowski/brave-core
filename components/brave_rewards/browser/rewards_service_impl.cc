@@ -775,8 +775,6 @@ void RewardsServiceImpl::OnWalletInitialized(ledger::Result result) {
     ready_.Signal();
 
   if (result == ledger::Result::WALLET_CREATED) {
-    SetRewardsMainEnabled(true);
-    SetAutoContribute(true);
     StartNotificationTimers(true);
 
     // Record P3A:
@@ -944,11 +942,6 @@ void RewardsServiceImpl::OnLedgerStateLoaded(
 
 void RewardsServiceImpl::LoadPublisherState(
     ledger::OnLoadCallback callback) {
-  if (!profile_->GetPrefs()->GetBoolean(prefs::kBraveRewardsEnabledMigrated)) {
-    bat_ledger_->GetRewardsMainEnabled(
-        base::BindOnce(&RewardsServiceImpl::SetRewardsMainEnabledPref,
-          AsWeakPtr()));
-  }
   base::PostTaskAndReplyWithResult(file_task_runner_.get(), FROM_HERE,
       base::BindOnce(&LoadOnFileTaskRunner, publisher_state_path_),
       base::BindOnce(&RewardsServiceImpl::OnPublisherStateLoaded,
@@ -1445,7 +1438,7 @@ void RewardsServiceImpl::SetRewardsMainEnabled(bool enabled) {
   if (!enabled) {
     RecordRewardsDisabledForSomeMetrics();
   }
-  SetRewardsMainEnabledPref(enabled);
+
   bat_ledger_->SetRewardsMainEnabled(enabled);
   TriggerOnRewardsMainEnabled(enabled);
 }
@@ -1457,16 +1450,6 @@ void RewardsServiceImpl::GetRewardsMainEnabled(
   }
 
   bat_ledger_->GetRewardsMainEnabled(callback);
-}
-
-void RewardsServiceImpl::SetRewardsMainEnabledPref(bool enabled) {
-  profile_->GetPrefs()->SetBoolean(prefs::kBraveRewardsEnabled, enabled);
-  SetRewardsMainEnabledMigratedPref(true);
-}
-
-void RewardsServiceImpl::SetRewardsMainEnabledMigratedPref(bool enabled) {
-  profile_->GetPrefs()->SetBoolean(
-      prefs::kBraveRewardsEnabledMigrated, true);
 }
 
 void RewardsServiceImpl::SetCatalogIssuers(const std::string& json) {
@@ -1848,7 +1831,7 @@ void RewardsServiceImpl::SetAutoContribute(bool enabled) {
   auto_contributions_enabled_ = enabled;
 
   // Record stats.
-  DCHECK(profile_->GetPrefs()->GetBoolean(prefs::kBraveRewardsEnabled));
+  DCHECK(profile_->GetPrefs()->GetBoolean(prefs::kStateEnabled));
   if (!enabled) {
     // Just record the disabled state.
     RecordAutoContributionsState(

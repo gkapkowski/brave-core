@@ -126,6 +126,8 @@ void LedgerImpl::Initialize(
 
   initializing_ = true;
 
+
+
   InitializeConfirmations(execute_create_script, callback);
 }
 

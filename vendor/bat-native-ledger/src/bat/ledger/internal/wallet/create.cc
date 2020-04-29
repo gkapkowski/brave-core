@@ -258,6 +258,8 @@ void Create::RegisterPersonaCallback(
     return;
   }
 
+  ledger_->SetRewardsMainEnabled(true);
+  ledger_->SetAutoContribute(true);
   ledger_->SetWalletInfo(wallet_info);
   ledger_->SetCurrency(currency);
   ledger_->SetContributionAmount(fee_amount);

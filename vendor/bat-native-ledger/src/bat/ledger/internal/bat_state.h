@@ -49,6 +49,8 @@ class BatState {
 
   bool GetRewardsMainEnabled() const;
 
+  bool LegacyGetRewardsMainEnabled() const;
+
   void SetContributionAmount(double amount);
 
   double GetContributionAmount() const;
@@ -60,6 +62,8 @@ class BatState {
   void SetAutoContribute(bool enabled);
 
   bool GetAutoContribute() const;
+
+  bool LegacyGetAutoContribute() const;
 
   const std::string& GetCardIdAddress() const;
 
@@ -138,10 +142,16 @@ class BatState {
 
   bool GetInlineTipSetting(const std::string& key) const;
 
+  bool Migrate();
+
  private:
   void SaveState();
 
   void OnSaveState(const ledger::Result result);
+
+  bool Migrate(int version);
+
+  bool MigrateToVersion1();
 
   bat_ledger::LedgerImpl* ledger_;  // NOT OWNED
   std::unique_ptr<ledger::ClientProperties> state_;

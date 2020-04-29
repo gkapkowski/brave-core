@@ -260,7 +260,7 @@ class BraveAdsBrowserTest
   }
 
   bool IsRewardsEnabled() const {
-    return GetPrefs()->GetBoolean(brave_rewards::prefs::kBraveRewardsEnabled);
+    return GetPrefs()->GetBoolean(brave_rewards::prefs::kStateEnabled);
   }
 
   bool IsAdsEnabled() {

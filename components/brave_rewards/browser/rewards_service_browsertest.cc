@@ -224,7 +224,7 @@ class BraveRewardsBrowserTest
   }
 
   bool IsRewardsEnabled() const {
-    return GetPrefs()->GetBoolean(brave_rewards::prefs::kBraveRewardsEnabled);
+    return GetPrefs()->GetBoolean(brave_rewards::prefs::kStateEnabled);
   }
 
   std::string GetPromotionId() {
@@ -2181,11 +2181,11 @@ IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest, PrefsTestInPrivateWindow) {
   EnableRewards();
   auto* profile = browser()->profile();
   EXPECT_TRUE(profile->GetPrefs()->GetBoolean(
-      brave_rewards::prefs::kBraveRewardsEnabled));
+      brave_rewards::prefs::kStateEnabled));
 
   Profile* private_profile = profile->GetOffTheRecordProfile();
   EXPECT_FALSE(private_profile->GetPrefs()->GetBoolean(
-      brave_rewards::prefs::kBraveRewardsEnabled));
+      brave_rewards::prefs::kStateEnabled));
 }
 
 IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest, ProcessPendingContributions) {

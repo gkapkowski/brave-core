@@ -79,15 +79,14 @@ void RewardsInternalsDOMHandler::Init() {
   pref_change_registrar_ = std::make_unique<PrefChangeRegistrar>();
   pref_change_registrar_->Init(prefs);
   pref_change_registrar_->Add(
-      brave_rewards::prefs::kBraveRewardsEnabled,
+      brave_rewards::prefs::kStateEnabled,
       base::BindRepeating(&RewardsInternalsDOMHandler::OnPreferenceChanged,
                           base::Unretained(this)));
 }
 
 bool RewardsInternalsDOMHandler::IsRewardsEnabled() const {
   DCHECK(profile_);
-  return profile_->GetPrefs()->GetBoolean(
-      brave_rewards::prefs::kBraveRewardsEnabled);
+  return profile_->GetPrefs()->GetBoolean(brave_rewards::prefs::kStateEnabled);
 }
 
 void RewardsInternalsDOMHandler::HandleGetRewardsEnabled(

@@ -311,7 +311,7 @@ AdsServiceImpl::AdsServiceImpl(Profile* profile) :
   profile_pref_change_registrar_.Add(prefs::kEnabled,
       base::Bind(&AdsServiceImpl::OnPrefsChanged, base::Unretained(this)));
 
-  profile_pref_change_registrar_.Add(brave_rewards::prefs::kBraveRewardsEnabled,
+  profile_pref_change_registrar_.Add(brave_rewards::prefs::kStateEnabled,
       base::Bind(&AdsServiceImpl::OnPrefsChanged, base::Unretained(this)));
 
   profile_pref_change_registrar_.Add(prefs::kIdleThreshold,
@@ -513,7 +513,7 @@ bool AdsServiceImpl::IsEnabled() const {
   auto is_enabled = GetBooleanPref(prefs::kEnabled);
 
   auto is_rewards_enabled =
-      GetBooleanPref(brave_rewards::prefs::kBraveRewardsEnabled);
+      GetBooleanPref(brave_rewards::prefs::kStateEnabled);
 
   return is_enabled && is_rewards_enabled;
 }
@@ -1540,7 +1540,7 @@ bool AdsServiceImpl::ShouldShowOnboarding() {
   auto is_ads_enabled = GetBooleanPref(prefs::kEnabled);
 
   auto is_rewards_enabled =
-      GetBooleanPref(brave_rewards::prefs::kBraveRewardsEnabled);
+      GetBooleanPref(brave_rewards::prefs::kStateEnabled);
 
   auto should_show = GetBooleanPref(prefs::kShouldShowOnboarding);
 
@@ -1804,7 +1804,7 @@ bool AdsServiceImpl::PrefExists(
 void AdsServiceImpl::OnPrefsChanged(
     const std::string& pref) {
   if (pref == prefs::kEnabled ||
-      pref == brave_rewards::prefs::kBraveRewardsEnabled) {
+      pref == brave_rewards::prefs::kStateEnabled) {
     if (IsEnabled()) {
 #if !defined(OS_ANDROID)
       if (first_run::IsChromeFirstRun()) {

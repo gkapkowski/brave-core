@@ -10,8 +10,6 @@ namespace brave_rewards {
 namespace prefs {
 
 extern const char kHideBraveRewardsButton[];
-extern const char kBraveRewardsEnabled[];
-extern const char kBraveRewardsEnabledMigrated[];
 extern const char kRewardsNotifications[];
 extern const char kRewardsNotificationTimerInterval[];
 extern const char kRewardsBackupNotificationFrequency[];
@@ -29,6 +27,9 @@ extern const char kStateUpholdAnonAddress[];
 extern const char kStatePromotionLastFetchStamp[];
 extern const char kStatePromotionCorruptedMigrated[];
 extern const char kStateAnonTransferChecked[];
+extern const char kStateVersion[];
+extern const char kStateEnabled[];
+extern const char kStateAutoContribute[];
 
 extern const char kUseRewardsStagingServer[];
 }  // namespace prefs

@@ -608,8 +608,6 @@ class RewardsServiceImpl : public RewardsService,
       ledger::AutoContributePropsPtr props);
   void OnGetRewardsInternalsInfo(GetRewardsInternalsInfoCallback callback,
                                  ledger::RewardsInternalsInfoPtr info);
-  void SetRewardsMainEnabledPref(bool enabled);
-  void SetRewardsMainEnabledMigratedPref(bool enabled);
 
   void OnRefreshPublisher(
       RefreshPublisherCallback callback,

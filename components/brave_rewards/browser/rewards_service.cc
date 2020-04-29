@@ -55,8 +55,6 @@ void RewardsService::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(prefs::kRewardsBackupSucceeded, false);
   registry->RegisterBooleanPref(prefs::kRewardsUserHasFunded, false);
   registry->RegisterTimePref(prefs::kRewardsAddFundsNotification, base::Time());
-  registry->RegisterBooleanPref(prefs::kBraveRewardsEnabled, false);
-  registry->RegisterBooleanPref(prefs::kBraveRewardsEnabledMigrated, false);
   registry->RegisterDictionaryPref(prefs::kRewardsExternalWallets);
   registry->RegisterUint64Pref(prefs::kStateServerPublisherListStamp, 0ull);
   registry->RegisterStringPref(prefs::kStateUpholdAnonAddress, "");
@@ -67,6 +65,9 @@ void RewardsService::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterUint64Pref(prefs::kStatePromotionLastFetchStamp, 0ull);
   registry->RegisterBooleanPref(prefs::kStatePromotionCorruptedMigrated, false);
   registry->RegisterBooleanPref(prefs::kStateAnonTransferChecked, false);
+  registry->RegisterIntegerPref(prefs::kStateVersion, 0);
+  registry->RegisterBooleanPref(prefs::kStateEnabled, false);
+  registry->RegisterBooleanPref(prefs::kStateAutoContribute, false);
 }
 
 }  // namespace brave_rewards
