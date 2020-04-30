@@ -40,10 +40,12 @@ GURL GetSelectionNavigationURL(Profile* profile, const base::string16& text) {
 }  // namespace
 
 #define BRAVE_APPEND_SEARCH_PROVIDER \
-  selection_navigation_url_ = \
-      GetSelectionNavigationURL(GetProfile(), params_.selection_text); \
-  if (!selection_navigation_url_.is_valid()) \
-    return;
+  if (GetProfile()->IsOffTheRecord()) { \
+    selection_navigation_url_ = \
+        GetSelectionNavigationURL(GetProfile(), params_.selection_text); \
+    if (!selection_navigation_url_.is_valid()) \
+      return; \
+  }
 
 // Use our subclass to initialize SpellingOptionsSubMenuObserver.
 #define SpellingOptionsSubMenuObserver BraveSpellingOptionsSubMenuObserver
